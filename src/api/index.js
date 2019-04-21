@@ -1,5 +1,5 @@
 // Example usage here, uncomment the following in actual usage
-// import api from './helper';
+import api from './helper';
 
 // export const signIn = data =>
 //   api.post('api/Login', data);
@@ -16,3 +16,8 @@ export const signIn = credentials => new Promise((resolve, reject) => {
     reject('Invalid credentials');
   }
 });
+
+// User
+export const fetchUsers = () => api.get('users');
+
+export const searchUser = username => api.get(`search/users?q=${username}+in:login`);
