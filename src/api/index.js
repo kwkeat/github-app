@@ -20,4 +20,4 @@ export const signIn = credentials => new Promise((resolve, reject) => {
 // User
 export const fetchUsers = () => api.get('users');
 
-export const searchUser = username => api.get(`search/users?q=${username}+in:login`);
+export const searchUsers = username => api.get(`search/users?q=${username}+in:login`);

@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "eslint-plugin-react-native": "^3.6.0",
+    "formik": "^1.5.2",
     "prop-types": "^15.6.2",
     "qs": "^6.6.0",
     "react": "16.6.3",
@@ -22,7 +23,8 @@
     "redux-form": "^8.1.0",
     "redux-logger": "^3.0.6",
     "redux-persist": "^5.10.0",
-    "redux-saga": "^0.16.2"
+    "redux-saga": "^0.16.2",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
