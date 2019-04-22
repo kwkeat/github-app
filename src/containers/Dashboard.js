@@ -11,7 +11,6 @@ import {
   Image,
   FlatList,
   TextInput,
-  Button,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { Formik } from 'formik';
@@ -19,6 +18,18 @@ import * as Yup from 'yup';
 import * as Colors from 'themes/colors';
 import { normalize } from 'utils/size';
 import Spinner from 'common/Spinner';
+
+const Realm = require('realm');
+
+const FavoriteUserSchema = {
+  name: 'FavoriteUser',
+  properties: {
+    avatarUrl: 'string',
+    id: 'int',
+    login: 'string',
+    htmlUrl: 'string',
+  },
+};
 
 const githubUser = [
   {
@@ -71,11 +82,18 @@ const githubUser = [
 class Dashboard extends Component {
   state = {
     tabIndex: 0,
+    favoriteUsers: [],
   }
 
   componentDidMount() {
-    const { fetchUsers } = this.props;
-    // fetchUsers();
+    const { fetchFavoriteUsers } = this.props;
+    fetchFavoriteUsers();
+
+    // Realm.open({ schema: [FavoriteUserSchema] })
+    //   .then((realm) => {
+    //     const favoriteUser = realm.objects('FavoriteUser');
+    //     this.setState({ favoriteUsers: JSON.stringify(favoriteUser) });
+    //   });
   }
 
   onSearchPress = (values) => {
@@ -101,7 +119,7 @@ class Dashboard extends Component {
 
   renderEmpty = () => (
     <View style={styles.empty}>
-      <Text>No user has been searched yet.</Text>
+      <Text>No user data available.</Text>
     </View>
   )
 
@@ -145,13 +163,17 @@ class Dashboard extends Component {
   }
 
   renderFavoriteUserList = () => {
-    const {
-      searchUserList, isLoadingSearchUserList,
-    } = this.props;
+    const { favoriteUserList } = this.props;
 
     return (
       <View style={styles.swiper}>
-        <Text>2nd Page</Text>
+        <FlatList
+          data={favoriteUserList}
+          renderItem={this.renderItem}
+          ItemSeparatorComponent={this.renderSeparator}
+          keyExtractor={favoriteUserList => favoriteUserList.id.toString()}
+          ListEmptyComponent={this.renderEmpty}
+        />
       </View>
     );
   }
@@ -285,6 +307,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   itemWrapper: {
+    paddingHorizontal: normalize(20),
     flex: 1,
     flexDirection: 'row',
   },
@@ -330,10 +353,10 @@ const styles = StyleSheet.create({
 
 Dashboard.propTypes = {
   signOut: PropTypes.func.isRequired,
-  fetchUsers: PropTypes.func.isRequired,
-  userList: PropTypes.func.isRequired,
+  fetchFavoriteUsers: PropTypes.func.isRequired,
+  favoriteUserList: PropTypes.func.isRequired,
   searchUsers: PropTypes.func.isRequired,
-  isLoadingUserList: PropTypes.bool.isRequired,
+  isLoadingFavoriteUserList: PropTypes.bool.isRequired,
   searchUserList: PropTypes.func.isRequired,
   isLoadingSearchUserList: PropTypes.bool.isRequired,
 };
@@ -342,15 +365,15 @@ Dashboard.defaultProps = {
 };
 
 const mapStateToProps = store => ({
-  userList: Selectors.getUserList(store),
+  favoriteUserList: Selectors.getFavoriteUserList(store),
   searchUserList: Selectors.getSearchUserList(store),
-  isLoadingUserList: Selectors.isLoadingUserList(store),
-  isLoadingSearchUserList: Selectors.isLoadingUserList(store),
+  isLoadingFavoriteUserList: Selectors.isLoadingFavoriteUserList(store),
+  isLoadingSearchUserList: Selectors.isLoadingSearchUserList(store),
 });
 
 const mapDispatchToProps = {
   signOut: Actions.signOut,
-  fetchUsers: Actions.fetchUsers,
+  fetchFavoriteUsers: Actions.fetchFavoriteUsers,
   searchUsers: Actions.searchUsers,
 };
 

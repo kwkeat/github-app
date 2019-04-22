@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
-import fetch from './fetch';
+import favorite from './favorite';
 import search from './search';
+import remove from './remove';
 
 export default combineReducers({
-  fetch,
+  favorite,
   search,
+  remove,
 });

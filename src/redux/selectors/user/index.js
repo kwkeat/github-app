@@ -1,7 +1,7 @@
-import * as fetch from './fetch';
+import * as favorite from './favorite';
 import * as search from './search';
 
 export default {
-  ...fetch,
+  ...favorite,
   ...search,
 };

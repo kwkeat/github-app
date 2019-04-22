@@ -2,24 +2,24 @@ import Actions from 'actions';
 
 const getDefaultState = () => ({ isLoading: false, error: null, data: [] });
 
-function fetch(state, action) {
+function favorite(state, action) {
   if (typeof state === 'undefined') {
     return getDefaultState();
   }
   switch (action.type) {
-    case Actions.FETCH_USERS:
+    case Actions.FETCH_FAVORITE_USERS:
       return {
         isLoading: true,
         error: null,
         data: [],
       };
-    case Actions.FETCH_USERS_SUCCESS:
+    case Actions.FETCH_FAVORITE_USERS_SUCCESS:
       return {
         isLoading: false,
         error: null,
         data: action.data,
       };
-    case Actions.FETCH_USERS_FAIL:
+    case Actions.FETCH_FAVORITE_USERS_FAIL:
       return {
         isLoading: false,
         error: action.error,
@@ -30,4 +30,4 @@ function fetch(state, action) {
   }
 }
 
-export default fetch;
+export default favorite;

@@ -18,16 +18,33 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { normalize } from 'utils/size';
 import * as Colors from 'themes/colors';
 
+const Realm = require('realm');
+
+const FavoriteUserSchema = {
+  name: 'FavoriteUser',
+  properties: {
+    avatar_url: 'string',
+    id: 'int',
+    login: 'string',
+    html_url: 'string',
+  },
+};
+
 class UserDetail extends Component {
-  onFavoritePress = () => {
-    console.log('favorite pressed');
+  onFavoritePress = (item) => {
+    const { addFavoriteUser } = this.props;
+    addFavoriteUser(item);
+  }
+
+  onRemovePress = (id) => {
+    const { removeFavoriteUser } = this.props;
+    removeFavoriteUser(id);
   }
 
   render() {
     const { navigation } = this.props;
     const item = navigation.getParam('item');
 
-    console.log(item);
     return (
       <View style={styles.container}>
         <TouchableOpacity style={styles.iconLeft} onPress={() => navigation.navigate('Dashboard')}>
@@ -37,13 +54,13 @@ class UserDetail extends Component {
           <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
           <View style={styles.button}>
             <Button
-              onPress={this.onFavoritePress}
+              onPress={() => this.onFavoritePress(item)}
               title="Favorite"
               color={Colors.primary}
             />
             <View style={{ paddingHorizontal: normalize(10) }} />
             <Button
-              onPress={this.onFavoritePress}
+              onPress={() => this.onRemovePress(item.id)}
               title="Remove"
               color={Colors.red}
             />
@@ -84,10 +101,17 @@ const styles = StyleSheet.create({
   },
 });
 
+UserDetail.propTypes = {
+  addFavoriteUser: PropTypes.func.isRequired,
+  removeFavoriteUser: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = store => ({
 });
 
 const mapDispatchToProps = {
+  addFavoriteUser: Actions.addFavoriteUser,
+  removeFavoriteUser: Actions.removeFavoriteUser,
 };
 
-export default connect(mapStateToProps, mapStateToProps)(UserDetail);
+export default connect(mapStateToProps, mapDispatchToProps)(UserDetail);
