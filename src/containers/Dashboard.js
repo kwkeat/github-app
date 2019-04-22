@@ -19,81 +19,19 @@ import * as Colors from 'themes/colors';
 import { normalize } from 'utils/size';
 import Spinner from 'common/Spinner';
 
-const Realm = require('realm');
-
-const FavoriteUserSchema = {
-  name: 'FavoriteUser',
-  properties: {
-    avatarUrl: 'string',
-    id: 'int',
-    login: 'string',
-    htmlUrl: 'string',
-  },
-};
-
-const githubUser = [
-  {
-    avatar_url: 'https://avatars3.githubusercontent.com/u/193408?v=4',
-    events_url: 'https://api.github.com/users/kwk/events{/privacy}',
-    followers_url: 'https://api.github.com/users/kwk/followers',
-    following_url: 'https://api.github.com/users/kwk/following{/other_user}',
-    gists_url: 'https://api.github.com/users/kwk/gists{/gist_id}',
-    gravatar_id: '',
-    html_url: 'https://github.com/kwk',
-    id: 193408,
-    login: 'kwk',
-    node_id: 'MDQ6VXNlcjE5MzQwOA==',
-    organizations_url: 'https://api.github.com/users/kwk/orgs',
-    received_events_url: 'https://api.github.com/users/kwk/received_events',
-    repos_url: 'https://api.github.com/users/kwk/repos',
-    score: 138.93407,
-    site_admin: false,
-    starred_url: 'https://api.github.com/users/kwk/starred{/owner}{/repo}',
-    subscriptions_url: 'https://api.github.com/users/kwk/subscriptions',
-    type: 'User',
-    url: 'https://api.github.com/users/kwk',
-  },
-  {
-    avatar_url: 'https://avatars3.githubusercontent.com/u/193408?v=4',
-    html_url: 'https://github.com/kwk',
-    id: 193409,
-    login: 'kwk',
-  },
-  {
-    avatar_url: 'https://avatars3.githubusercontent.com/u/193408?v=4',
-    html_url: 'https://github.com/kwk',
-    id: 1931408,
-    login: 'kwk',
-  },
-  {
-    avatar_url: 'https://avatars3.githubusercontent.com/u/193408?v=4',
-    html_url: 'https://github.com/kwk',
-    id: 1934408,
-    login: 'kwk',
-  },
-  {
-    avatar_url: 'https://avatars3.githubusercontent.com/u/193408?v=4',
-    html_url: 'https://github.com/kwk',
-    id: 1935408,
-    login: 'kwk',
-  },
-];
+const validation = Yup.object().shape({
+  username: Yup.string()
+    .required('Username is required'),
+});
 
 class Dashboard extends Component {
   state = {
     tabIndex: 0,
-    favoriteUsers: [],
   }
 
   componentDidMount() {
     const { fetchFavoriteUsers } = this.props;
     fetchFavoriteUsers();
-
-    // Realm.open({ schema: [FavoriteUserSchema] })
-    //   .then((realm) => {
-    //     const favoriteUser = realm.objects('FavoriteUser');
-    //     this.setState({ favoriteUsers: JSON.stringify(favoriteUser) });
-    //   });
   }
 
   onSearchPress = (values) => {
@@ -151,11 +89,12 @@ class Dashboard extends Component {
     return (
       <View style={styles.swiper}>
         <FlatList
-          data={githubUser}
+          data={searchUserList}
           renderItem={this.renderItem}
           ItemSeparatorComponent={this.renderSeparator}
           keyExtractor={githubUser => githubUser.id.toString()}
           ListEmptyComponent={this.renderEmpty}
+          onEndReached={this.onEndReached}
         />
         {isLoadingSearchUserList && <Spinner style={styles.spinner} />}
       </View>
@@ -210,23 +149,27 @@ class Dashboard extends Component {
     <Formik
       initialValues={{ username: '' }}
       onSubmit={values => this.onSearchPress(values)}
+      validationSchema={validation}
     >
       {props => (
-        <View style={styles.header}>
-          <View style={styles.textInput}>
-            <TextInput
-              onChangeText={props.handleChange('username')}
-              onBlur={props.handleBlur('username')}
-              value={props.values.username}
-              placeholder="Username"
-            />
+        <View>
+          <View style={styles.header}>
+            <View style={styles.textInput}>
+              <TextInput
+                onChangeText={props.handleChange('username')}
+                onBlur={props.handleBlur('username')}
+                value={props.values.username}
+                placeholder="Username"
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.buttonSearch}
+              onPress={props.handleSubmit}
+            >
+              <Text style={styles.buttonSearchText}>Search</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.buttonSearch}
-            onPress={props.handleSubmit}
-          >
-            <Text style={styles.buttonSearchText}>Search</Text>
-          </TouchableOpacity>
+          <Text style={styles.error}>{props.errors.username}</Text>
         </View>
       )}
     </Formik>
@@ -271,6 +214,11 @@ const styles = StyleSheet.create({
   },
   swiper: {
     flex: 1,
+  },
+  error: {
+    color: Colors.fail,
+    alignSelf: 'flex-end',
+    marginRight: normalize(25),
   },
   header: {
     alignItems: 'center',
@@ -354,20 +302,21 @@ const styles = StyleSheet.create({
 Dashboard.propTypes = {
   signOut: PropTypes.func.isRequired,
   fetchFavoriteUsers: PropTypes.func.isRequired,
-  favoriteUserList: PropTypes.func.isRequired,
+  favoriteUserList: PropTypes.array,
   searchUsers: PropTypes.func.isRequired,
-  isLoadingFavoriteUserList: PropTypes.bool.isRequired,
-  searchUserList: PropTypes.func.isRequired,
+  navigation: PropTypes.object.isRequired,
+  searchUserList: PropTypes.array,
   isLoadingSearchUserList: PropTypes.bool.isRequired,
 };
 
 Dashboard.defaultProps = {
+  favoriteUserList: [],
+  searchUserList: [],
 };
 
 const mapStateToProps = store => ({
   favoriteUserList: Selectors.getFavoriteUserList(store),
   searchUserList: Selectors.getSearchUserList(store),
-  isLoadingFavoriteUserList: Selectors.isLoadingFavoriteUserList(store),
   isLoadingSearchUserList: Selectors.isLoadingSearchUserList(store),
 });
 

@@ -32,14 +32,14 @@ export const signIn = credentials => new Promise((resolve, reject) => {
 // User
 export const fetchUsers = () => api.get('users');
 
-export const searchUsers = username => api.get(`search/users?q=${username}+in:login`);
+export const searchUsers = (username, page) => api.get(`search/users?page=${page}&q=${username}+in:login`);
 
 export const addFavoriteUser = data => Realm.open({ schema: [FavoriteUserSchema] })
   .then((realm) => {
     // Create Realm objects and write to local storage
     const favoriteUser = realm.objects('FavoriteUser').filtered(`id == ${data.id}`);
     if (favoriteUser.length === 1) {
-      return false;
+      return EXIST;
     }
 
     if (favoriteUser.length === 0) {
@@ -54,7 +54,9 @@ export const addFavoriteUser = data => Realm.open({ schema: [FavoriteUserSchema]
     }
 
     const addedUser = realm.objects('FavoriteUser').filtered(`id == ${data.id}`);
-    return addedUser.length;
+    if (addedUser.length === 1) {
+      return SUCCESS;
+    }
   });
 
 export const fetchFavoriteUsers = () => Realm.open({ schema: [FavoriteUserSchema] })

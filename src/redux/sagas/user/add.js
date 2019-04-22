@@ -3,13 +3,16 @@ import {
 } from 'redux-saga/effects';
 import Actions from 'actions';
 import * as api from 'api';
+import DropDownService from 'utils/dropdown';
 
 function* addFavoriteUser({ data }) {
   try {
     const response = yield call(api.addFavoriteUser, data);
-    console.log('response');
-    if (response) {
+    if (response === 'SUCCESS') {
       yield put(Actions.addFavoriteUserSuccess());
+      yield call(DropDownService.alertWithType, 'success', '', 'User added to favorite list.');
+    } else if (response === 'EXIST') {
+      yield call(DropDownService.alertWithType, 'error', '', 'User is already on favorite list.');
     }
   } catch (error) {
     yield put(Actions.addFavoriteUserFail(error));
